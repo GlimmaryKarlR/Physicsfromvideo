@@ -1,0 +1,37 @@
+This system implements a novel Physics-Based Classification approach for robotic action generation. It uses computer vision (CAD line extraction) and time-series modeling (Keras/Joblib) to learn the kinematic profiles (Velocity, Acceleration, and Angular Velocity) of objects from video input, and then uses those profiles to predict the necessary commands for robotic execution.
+
+🚀 Modes of Operation
+The system has two primary modes, selected from the main menu:
+
+LEARN (Unlearned Task): Processes a new video, extracts kinematic data, and uses that data to retrain/update the overall knowledge base (Keras models and Joblib scalers). This is how the robot acquires new skills.
+
+DO (Known Task): Processes a video of an action, identifies the matching kinematic profile using the stored models, and generates a prediction CSV containing robot commands.
+
+🤖 GlimmarianEmbeddedSystems V1
+This system implements a novel Physics-Based Classification approach for robotic action generation. It uses computer vision (CAD line extraction) and time-series modeling (Keras/Joblib) to learn the kinematic profiles (Velocity, Acceleration, and Angular Velocity) of objects from video input, and then uses those profiles to predict the necessary commands for robotic execution.
+
+🚀 Modes of Operation
+The system has two primary modes, selected from the main menu:
+
+LEARN (Unlearned Task): Processes a new video, extracts kinematic data, and uses that data to retrain/update the overall knowledge base (Keras models and Joblib scalers). This is how the robot acquires new skills.
+
+DO (Known Task): Processes a video of an action, identifies the matching kinematic profile using the stored models, and generates a prediction CSV containing robot commands.
+
+⚙️ Installation and Setup
+1. Prerequisites
+You must have Python installed and be working within the dedicated Virtual Environment created for this project to ensure all dependencies are met.
+
+2. File Structure
+Ensure the following directory structure exists relative to the main executable (VLA_Prediction_System.exe or main.py):
+
+
+
+💻 How to Use the System
+Start the application by running the executable or the main script:
+
+
+The 'LEARN' Workflow (Unlearned Task)Use this mode when recording a new type of action or when you want to refine an existing skill.StepActionDescriptionInputType learnInitiates the training sequence.Video UploadEnter Full Video PathProvide the path to the video file of the new action.Vision Pipeline(Automatic)frame_to_dxf_converter.py runs (YOLO/Vision) $\rightarrow$ creates DXF geometry $\rightarrow$ read_dxf_and_generate_csv.py parses geometry $\rightarrow$ creates raw CSV.Kinematic ID(Automatic)kinematicid.py runs $\rightarrow$ calculates Velocity, Acceleration, and Angular Velocity $\rightarrow$ Appends this new feature data to combined_kinematic_sequences.csv.NN Training(Automatic)local_nn_training.py runs $\rightarrow$ reads the entire updated training CSV $\rightarrow$ Retrains/Updates all Keras models and Joblib scalers in the models/ directory.OutputUpdated ModelsThe system's knowledge base is successfully expanded.
+
+The 'DO' Workflow (Known Task)Use this mode when you want the robot to execute an action based on its learned skills.StepActionDescriptionInputType doInitiates the prediction sequence.Video UploadEnter Full Video PathProvide the path to the video file of the action you want the robot to mimic/analyze.Vision Pipeline(Automatic)frame_to_dxf_converter.py $\rightarrow$ DXF $\rightarrow$ read_dxf_and_generate_csv.py $\rightarrow$ raw CSV.Kinematic ID(Automatic)kinematicid.py runs $\rightarrow$ calculates V, A, $\omega$ features $\rightarrow$ Writes temporary prediction features CSV.Prediction(Automatic)prediction_system.py runs: 1. Reads prediction features. 2. Compares to combined_kinematic_sequences.csv to identify the most likely Vector Class ID. 3. Loads the corresponding Keras model and Joblib scaler from models/. 4. Predicts the future kinematic states.OutputAction CSVA file named robot_action.csv is generated in action_commands/, containing the time-series motor commands (vx_cmd, vy_cmd, omega_cmd) for the robot's controller.
+
+Troubleshooting and MaintenanceIssuePotential CauseSolutionImportErrorPyInstaller failed to bundle a dependency (e.g., PyTorch, TensorFlow).Rebuild the executable using the .spec file and ensure the necessary dependency (hiddenimports) is added to the a.hiddenimports list.Model Load FailureKeras or Joblib files are missing or corrupted.Ensure the models/ directory contains all necessary .h5 and .joblib files, matching the expected Vector_Class IDs.Error: File not foundThe user entered an incorrect video path.The user must enter the full, absolute path to the video file.Poor Prediction QualityInsufficient training data.Run the LEARN mode multiple times with variations of the task to build a robust combined_kinematic_sequences.csv.
